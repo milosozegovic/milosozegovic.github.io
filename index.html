@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Milos Ozegovic — Senior Software Engineer</title>
+<meta name="author" content="Milos Ozegovic">
+<meta name="description" content="Senior software engineer with 13+ years in PHP and Laravel, specialising in analytical performance and data infrastructure. Remote from Banja Luka, available for US hours.">
+<meta property="og:title" content="Milos Ozegovic — Senior Software Engineer">
+<meta property="og:description" content="I make slow data fast. Thirteen years in PHP and Laravel.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://milosozegovic.com">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<div class="wrap">
+  <header class="top">
+    <span class="name">Milos Ozegovic</span>
+    <nav aria-label="Primary">
+      <a href="#work">Work</a>
+      <a href="#experience">Experience</a>
+      <a href="#about">About</a>
+      <a href="#voices">Colleagues</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </header>
+
+  <main id="main">
+  <div class="hero">
+    <p class="eyebrow">Senior Software Engineer</p>
+    <h1>I make slow data fast.</h1>
+    <p class="lede">Thirteen years in PHP and Laravel. I moved a 1.5-billion-row
+      reporting workload off MySQL and took reports from
+      <strong>30 minutes to 3 seconds</strong>.</p>
+    <p class="whereabouts">Banja Luka, Bosnia &amp; Herzegovina<span class="dot"></span>
+      Remote<span class="dot"></span>Available for US Eastern &amp; Central hours</p>
+  </div>
+
+  <div class="figures">
+    <div class="fig">
+      <div class="n">13+</div>
+      <svg class="mark" viewBox="0 0 100 14" preserveAspectRatio="none" aria-hidden="true">
+        <polyline points="0,13 16,12 32,10 48,8 64,5.5 80,3 100,1" fill="none"
+          stroke="var(--accent)" stroke-width="1" opacity=".55"/>
+      </svg>
+      <div class="l">years building backend systems</div>
+    </div>
+    <div class="fig">
+      <div class="n">1.5B</div>
+      <svg class="mark" viewBox="0 0 100 14" preserveAspectRatio="none" aria-hidden="true">
+        <g fill="var(--accent)">
+          <rect x="0"  y="10" width="9" height="4"  opacity=".22"/>
+          <rect x="15" y="7.5" width="9" height="6.5" opacity=".32"/>
+          <rect x="30" y="5"  width="9" height="9"  opacity=".42"/>
+          <rect x="45" y="3"  width="9" height="11" opacity=".52"/>
+          <rect x="60" y="1.5" width="9" height="12.5" opacity=".62"/>
+          <rect x="75" y="0"  width="9" height="14" opacity=".72"/>
+        </g>
+      </svg>
+      <div class="l">rows migrated to ClickHouse</div>
+    </div>
+    <div class="fig">
+      <div class="n">30 min → 3 s</div>
+      <svg class="mark" viewBox="0 0 100 14" preserveAspectRatio="none" aria-hidden="true">
+        <rect x="0" y="4" width="62" height="6" fill="var(--warn)" opacity=".38"/>
+        <rect x="62" y="4" width="1.2" height="6" fill="var(--accent)"/>
+      </svg>
+      <div class="l">report generation, before and after</div>
+    </div>
+    <div class="fig">
+      <div class="n">5 yrs</div>
+      <svg class="mark" viewBox="0 0 100 14" preserveAspectRatio="none" aria-hidden="true">
+        <line x1="0" y1="7" x2="100" y2="7" stroke="var(--rule)" stroke-width="1"/>
+        <g fill="var(--accent)" opacity=".7">
+          <circle cx="4" cy="7" r="2.4"/><circle cx="27" cy="7" r="2.4"/>
+          <circle cx="50" cy="7" r="2.4"/><circle cx="73" cy="7" r="2.4"/>
+          <circle cx="96" cy="7" r="2.4"/>
+        </g>
+      </svg>
+      <div class="l">remote with US teams</div>
+    </div>
+  </div>
+
+  <section>
+    <div class="sec-head"><span class="idx">01</span><h2>What I do</h2></div>
+    <div class="cols">
+      <div class="col">
+        <h3>Analytical performance</h3>
+        <p>Column stores, query rewriting, partitioning and caching — finding
+          why something is slow and making it stop being slow.</p>
+        <p class="ev">Three companies, the same problem, measured each time:
+          ~600×, 25%, and 50%+.</p>
+      </div>
+      <div class="col">
+        <h3>Platform &amp; data infrastructure</h3>
+        <p>Warehouse migrations, extracting shared services, multi-tenancy,
+          and internal tooling other engineers depend on.</p>
+        <p class="ev">ClickHouse and Snowflake migrations; a Laravel connector
+          and query translator built from scratch.</p>
+      </div>
+      <div class="col">
+        <h3>Delivery and mentoring</h3>
+        <p>Shipping consistently, reviewing more than I write, and bringing
+          junior engineers up.</p>
+        <p class="ev">Highest review load of 31 contributors. Every intern I
+          mentored converted to full-time and stayed.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="work">
+    <div class="sec-head"><span class="idx">02</span><h2>Selected work</h2></div>
+    <div class="work">
+      <a class="card" href="work/clickhouse.html">
+        <div class="k">Case study</div>
+        <h3>Taking reports from 30 minutes to 3 seconds</h3>
+        <p>A 1.5-billion-row clicks table had outgrown MySQL. I proposed
+          ClickHouse, proved it with benchmarks, designed the schema and
+          architecture, and built the connector and query-translation layer
+          that didn't exist yet.</p>
+        <div class="meta">ClickHouse · MySQL · Laravel · AWS</div>
+      </a>
+      <a class="card" href="work/engineering-analytics.html">
+        <div class="k">Case study</div>
+        <h3>Measuring a team without misrepresenting it</h3>
+        <p>A reporting pipeline over Jira and GitHub covering 1,000+ pull
+          requests across eight repositories — and the caveats that keep the
+          numbers honest.</p>
+        <div class="meta">Internal tooling · hand-built SVG · zero dependencies</div>
+      </a>
+      <a class="card" href="https://ets.rs.ba">
+        <div class="k">Live · volunteer</div>
+        <h3>ets.rs.ba</h3>
+        <p>Website and CMS for the school I attended, serving around 900
+          students. I built the first version in 2013, then rewrote and
+          redesigned it on Laravel in 2020.</p>
+        <div class="meta">In production six years</div>
+      </a>
+      <a class="card" href="https://banjalukanima.org">
+        <div class="k">Live · volunteer</div>
+        <h3>banjalukanima.org</h3>
+        <p>CMS for the Banjaluka International Animated Film Festival, now in
+          its eighteenth edition. Still maintained.</p>
+        <div class="meta">In production since 2018</div>
+      </a>
+    </div>
+  </section>
+
+  <section id="experience">
+    <div class="sec-head"><span class="idx">03</span><h2>Experience</h2></div>
+    <div class="roles">
+      <div class="role"><span class="r">Senior Software Engineer</span><span class="c">FieldFlō — field operations SaaS</span><span class="d">2026 —</span></div>
+      <div class="role"><span class="r">Senior Full Stack Engineer</span><span class="c">Serious Development — healthcare scheduling</span><span class="d">2025 – 2026</span></div>
+      <div class="role"><span class="r">Senior Full Stack Engineer</span><span class="c">2amigOS! — medical billing platform</span><span class="d">2023 – 2024</span></div>
+      <div class="role"><span class="r">Senior Software Engineer</span><span class="c">HTEC Group — patient-facing health app</span><span class="d">2021 – 2023</span></div>
+      <div class="role"><span class="r">Senior Full Stack Developer</span><span class="c">Bay42 / Perform[cb] — performance marketing</span><span class="d">2019 – 2021</span></div>
+      <div class="role"><span class="r">Full Stack Developer</span><span class="c">Profit Mole — ad campaign analytics</span><span class="d">2016 – 2019</span></div>
+      <div class="role"><span class="r">Junior PHP Developer</span><span class="c">M Hasler</span><span class="d">2014 – 2016</span></div>
+    </div>
+  </section>
+
+  <section id="about">
+    <div class="sec-head"><span class="idx">04</span><h2>About</h2></div>
+    <div class="about">
+      <div>
+        <p>C and Pascal at school didn't take. PHP did. I took a course at 17,
+          was working as a developer within ten months, and left university at
+          20 because I wanted the real thing.</p>
+        <p>Before any of that, my final school project was a robotic arm —
+          assembled from a kit and programmed in C to pick up cubes and put
+          them somewhere specific.</p>
+        <p>That's still roughly what I do: take something that works badly and
+          find out why. These days it's usually a query. Sometimes it's a
+          motorcycle, a sawmill control panel, or a desk.</p>
+      </div>
+      <picture>
+        <source srcset="img/portrait.webp" type="image/webp">
+        <img class="portrait" src="img/portrait.jpg" alt="Milos Ozegovic"
+             width="600" height="750" loading="lazy" decoding="async">
+      </picture>
+    </div>
+  </section>
+
+  <section id="voices">
+    <div class="sec-head"><span class="idx">05</span><h2>What colleagues say</h2></div>
+    <div class="voices">
+
+      <figure class="voice">
+        <picture>
+          <source srcset="img/people/stefan-radukic.webp" type="image/webp">
+          <img src="img/people/stefan-radukic.jpg" alt="" width="48" height="48" loading="lazy">
+        </picture>
+        <div>
+          <blockquote>
+            <p>&ldquo;I have known Milos since high school, and his early passion
+              for programming meant he was already working professionally by the
+              time we collaborated on college projects. Beyond that, we have also
+              partnered on several professional projects over the years. What truly
+              sets him apart is his thorough and specific way of solving complex
+              technical challenges. I highly recommend him to any organization
+              looking for an experienced and driven engineer.&rdquo;</p>
+          </blockquote>
+          <cite><b>Stefan Radukic</b><span class="rel">Collaborator, college and professional projects</span></cite>
+        </div>
+      </figure>
+
+      <figure class="voice">
+        <picture>
+          <source srcset="img/people/djordje-sladakovic.webp" type="image/webp">
+          <img src="img/people/djordje-sladakovic.jpg" alt="" width="48" height="48" loading="lazy">
+        </picture>
+        <div>
+          <blockquote>
+            <p>&ldquo;He is always happy to help and share his knowledge with
+              others. His broad expertise has not only improved our productivity
+              but has also helped everyone on the team learn and grow.&rdquo;</p>
+          </blockquote>
+          <cite><b>Djordje Sladakovic</b><span class="rel">Former colleague, Bay42</span></cite>
+        </div>
+      </figure>
+
+      <figure class="voice">
+        <picture>
+          <source srcset="img/people/igor-djuric.webp" type="image/webp">
+          <img src="img/people/igor-djuric.jpg" alt="" width="48" height="48" loading="lazy">
+        </picture>
+        <div>
+          <blockquote>
+            <p>&ldquo;Early in our careers Milos and I collaborated as a programmer
+              and designer duo, creating multiple interactive websites using PHP and
+              responsive design for local businesses. We were among the first to embrace new technologies and
+              development approaches, which let us compete with bigger players
+              despite not having much experience at the time. Our clients included
+              cultural organizations, events, and small and medium businesses.&rdquo;</p>
+          </blockquote>
+          <cite><b>Igor Djuric</b><span class="rel">Designer &middot; long-time collaborator</span></cite>
+        </div>
+      </figure>
+
+    </div>
+  </section>
+  </main>
+</div>
+
+<div class="wrap">
+  <div class="contact" id="contact">
+    <h2>Open to senior backend and platform roles.</h2>
+    <p class="terms">Remote from Banja Luka, available for US Eastern and
+      Central hours. I contract through my registered company or via Deel —
+      no sponsorship required, and I can start at short notice.</p>
+    <div class="links">
+      <a href="mailto:milos.ozegovic94@gmail.com">milos.ozegovic94@gmail.com</a>
+      <a href="https://linkedin.com/in/milosozegovic">LinkedIn</a>
+      <a href="Milos-Ozegovic-Resume.pdf">Résumé (PDF)</a>
+    </div>
+  </div>
+  <footer>
+    <span>© 2026 Milos Ozegovic</span>
+    <span>Built by hand. No frameworks.</span>
+  </footer>
+</div>
+</body>
+</html>

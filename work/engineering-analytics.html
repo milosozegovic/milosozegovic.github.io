@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Measuring a team without misrepresenting it — Milos Ozegovic</title>
+<meta name="author" content="Milos Ozegovic">
+<meta name="description" content="Building a delivery-analytics pipeline over Jira and GitHub — and the caveats that keep the numbers honest.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<div class="article">
+  <a class="back" href="../index.html">← Milos Ozegovic</a>
+
+  <header class="art-head">
+    <p class="k">Case study</p>
+    <h1>Measuring a team without misrepresenting it</h1>
+    <p class="stand">A delivery-analytics pipeline over Jira and GitHub. The
+      charts were the easy part; deciding what the numbers were allowed to
+      claim was not.</p>
+    <div class="art-meta">
+      <div>Context<b>~30-contributor engineering org</b></div>
+      <div>Window<b>Ten weeks</b></div>
+      <div>Stack<b>Jira API, GitHub GraphQL, vanilla JS</b></div>
+    </div>
+  </header>
+
+  <main id="main">
+
+  <div class="note">
+    <p style="margin:0"><b>On the data shown here.</b> Every figure and name in
+      the charts below is synthetic. The methodology is real; the numbers are
+      not, and the organisation is not identified.</p>
+  </div>
+
+  <h2>The question</h2>
+
+  <p>The questions that prompted this were ordinary ones, and they came up in
+    the way they usually do — during planning, as assertions nobody could
+    check:</p>
+
+  <ul>
+    <li>How is work actually distributed across the team?</li>
+    <li>Who is absorbing code review?</li>
+    <li>How much work is shipping without ever being tagged to a release?</li>
+    <li>Is the team overwhelmed, or does it just feel that way?</li>
+  </ul>
+
+  <p>Jira knew part of the answer and GitHub knew another part, and neither
+    could see the other. So I built something that joined them.</p>
+
+  <h2>Pulling the data</h2>
+
+  <p>Two sources, both awkward in their own way.</p>
+
+  <table class="kv">
+    <tr><td>Jira</td><td>Issue search with pagination, plus per-week status-history queries to reconstruct what was in progress when. Every paged result asserted against its own count query, so a silently truncated page could not pass unnoticed.</td></tr>
+    <tr><td>GitHub</td><td>GraphQL search per repository for merged and unmerged pull requests, pulling author, merger, reviews, and head/base branches.</td></tr>
+    <tr><td>Output</td><td>One JSON dataset, rendered by a static page that runs from the local filesystem with no server, no build step and no dependencies.</td></tr>
+  </table>
+
+  <p>The last row was a deliberate constraint. A report that needs a running
+    service to be looked at is a report nobody looks at. This one is a folder
+    you can open.</p>
+
+  <h2>The decisions that actually mattered</h2>
+
+  <p>Joining two systems means making judgement calls, and every one of them
+    changes the numbers. These are the four that moved things most.</p>
+
+  <h3>Who owns a ticket</h3>
+  <p>Jira had both an <em>Assignee</em> and a custom <em>Developer</em> field,
+    and they disagreed often — because on this team the assignee was frequently
+    the QA engineer, not the person who wrote the code. Using Assignee would
+    have quietly credited testing work as development work.</p>
+  <p>So: Developer first, Assignee as fallback, <em>unassigned</em> if neither.
+    I recorded the coverage of each field so a reader could see how much the
+    fallback was doing.</p>
+
+  <h3>Not all pull requests are work</h3>
+  <p>A meaningful share of PRs were branch plumbing — <code>develop → master</code>
+    syncs and release-branch merges. They are real activity but they are not
+    feature work, and they cluster heavily on whoever runs releases.</p>
+  <p>Left in, the release engineer looks like the most productive person on the
+    team. I classified and excluded them from every feature-level figure, and
+    stated both the count and the distortion in the methodology.</p>
+
+  <figure class="diagram">
+    <svg viewBox="0 0 560 190" role="img" aria-label="Illustrative chart: pull requests per contributor, split between feature work and branch plumbing. One contributor's total is dominated by plumbing.">
+      <g font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,sans-serif" font-size="10.5">
+        <text x="0" y="10" fill="#6A655C" font-size="10">PRs per contributor — feature work vs branch plumbing (illustrative)</text>
+        <g transform="translate(0,26)">
+          <g fill="#1F5E56">
+            <rect x="72" y="4"   width="150" height="13"/>
+            <rect x="72" y="26"  width="132" height="13"/>
+            <rect x="72" y="48"  width="58"  height="13"/>
+            <rect x="72" y="70"  width="104" height="13"/>
+            <rect x="72" y="92"  width="88"  height="13"/>
+            <rect x="72" y="114" width="66"  height="13"/>
+          </g>
+          <g fill="#A8502A" opacity=".45">
+            <rect x="222" y="4"   width="14"  height="13"/>
+            <rect x="204" y="26"  width="10"  height="13"/>
+            <rect x="130" y="48"  width="128" height="13"/>
+            <rect x="176" y="70"  width="8"   height="13"/>
+            <rect x="160" y="92"  width="12"  height="13"/>
+            <rect x="138" y="114" width="6"   height="13"/>
+          </g>
+          <g fill="#6A655C" text-anchor="end">
+            <text x="62" y="14">A</text><text x="62" y="36">B</text>
+            <text x="62" y="58">C</text><text x="62" y="80">D</text>
+            <text x="62" y="102">E</text><text x="62" y="124">F</text>
+          </g>
+          <text x="264" y="58" fill="#A8502A" font-size="10">← release engineer</text>
+        </g>
+        <g transform="translate(0,178)" font-size="10" fill="#6A655C">
+          <rect x="0" y="-8" width="9" height="9" fill="#1F5E56"/>
+          <text x="14" y="0">feature</text>
+          <rect x="66" y="-8" width="9" height="9" fill="#A8502A" opacity=".45"/>
+          <text x="80" y="0">plumbing</text>
+        </g>
+      </g>
+    </svg>
+    <figcaption>Contributor C does not write more code than everyone else. They
+      run the release train.</figcaption>
+  </figure>
+
+  <h3>Averages hide the problem</h3>
+  <p>Lead time measured from creation to resolution — which includes sitting in
+    the backlog, and is therefore not "how long the work took". I said so, and
+    reported the <strong>median alongside the 90th percentile</strong>, plus
+    the share of tickets over thirty days.</p>
+  <p>A mean would have been one number and a more comfortable one. The tail is
+    where the actual problem lives.</p>
+
+  <h3>Concurrency, not throughput</h3>
+  <p>"Overwhelmed" is not a count of finished tickets. I measured how many
+    distinct tickets a person had in progress during each week — work in
+    flight, not work completed. Someone finishing a lot while juggling three
+    things is in a different situation from someone finishing the same amount
+    while juggling fifteen.</p>
+
+  <figure class="diagram">
+    <svg viewBox="0 0 560 150" role="img" aria-label="Illustrative chart: weekly work in flight per contributor over ten weeks, showing a rising trend.">
+      <g font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,sans-serif" font-size="10.5">
+        <text x="0" y="10" fill="#6A655C" font-size="10">Median tickets in flight per week (illustrative)</text>
+        <g transform="translate(24,24)">
+          <line x1="0" y1="88" x2="512" y2="88" stroke="#E2DED4"/>
+          <line x1="0" y1="44" x2="512" y2="44" stroke="#E2DED4" stroke-dasharray="2 4"/>
+          <line x1="0" y1="0"  x2="512" y2="0"  stroke="#E2DED4" stroke-dasharray="2 4"/>
+          <polyline points="0,74 57,70 114,66 171,58 228,60 285,48 342,40 399,34 456,24 512,18"
+            fill="none" stroke="#1F5E56" stroke-width="1.6"/>
+          <g fill="#1F5E56">
+            <circle cx="0" cy="74" r="2.5"/><circle cx="57" cy="70" r="2.5"/>
+            <circle cx="114" cy="66" r="2.5"/><circle cx="171" cy="58" r="2.5"/>
+            <circle cx="228" cy="60" r="2.5"/><circle cx="285" cy="48" r="2.5"/>
+            <circle cx="342" cy="40" r="2.5"/><circle cx="399" cy="34" r="2.5"/>
+            <circle cx="456" cy="24" r="2.5"/><circle cx="512" cy="18" r="2.5"/>
+          </g>
+          <text x="-6" y="92" text-anchor="end" fill="#6A655C" font-size="9.5">0</text>
+          <text x="-6" y="48" text-anchor="end" fill="#6A655C" font-size="9.5">8</text>
+          <text x="-6" y="4"  text-anchor="end" fill="#6A655C" font-size="9.5">16</text>
+          <text x="0" y="104" fill="#6A655C" font-size="9.5">wk 1</text>
+          <text x="512" y="104" text-anchor="end" fill="#6A655C" font-size="9.5">wk 10</text>
+        </g>
+      </g>
+    </svg>
+    <figcaption>Throughput held steady across this period. Concurrency did not —
+      which is the finding.</figcaption>
+  </figure>
+
+  <h2>The part I care about most</h2>
+
+  <p>Some contributors carried a substantial number of tickets and showed
+    <em>no</em> pull requests at all. Their work — data engineering, some
+    operations — did not flow through the repositories the pipeline could see.</p>
+
+  <p>A chart does not know that. It renders an empty bar, and an empty bar next
+    to your colleague's name is a claim about them.</p>
+
+  <p class="pull">Blank columns mean <em>not visible</em>, never <em>did nothing</em>.</p>
+
+  <p>That sentence went into the report, in the methodology section, next to
+    the list of people it applied to and the reason the data was missing. I
+    also documented which repository the access token could not see, so the gap
+    was attributable rather than mysterious.</p>
+
+  <p>This is the part of the work I would defend hardest. Delivery metrics get
+    read by people with authority over the careers of the people being
+    measured. A number presented without its limits is not neutral — it is an
+    argument, and someone will act on it. Stating what the data cannot support
+    is not a disclaimer at the bottom. It is the difference between a tool and
+    a weapon.</p>
+
+  <h2>Building it</h2>
+
+  <p>The rendering is hand-written: a small set of SVG chart primitives —
+    axis-tick selection, path generation for bars, stacked and grouped layouts,
+    a tooltip positioner — plus a shared stylesheet. No charting library, no
+    build step, no network requests. The charts on this page are drawn the same
+    way.</p>
+
+  <p>That was partly taste and partly durability. A report with no dependencies
+    still opens in three years.</p>
+
+  <h2>What it changed</h2>
+
+  <table class="kv">
+    <tr><td>Review load</td><td>Review was concentrated far more narrowly than anyone assumed. It had been invisible because review is not a ticket.</td></tr>
+    <tr><td>Untracked work</td><td>A significant volume of work carried no fix version — largely a process gap rather than emergency work, which was the assumption going in.</td></tr>
+    <tr><td>Overwhelm</td><td>Concurrency rose steadily while throughput stayed flat — the measurable version of a feeling people had already reported.</td></tr>
+  </table>
+
+  <h2>What I would do differently</h2>
+
+  <p><strong>I would agree the questions with the people being measured first.</strong>
+    I built this to answer planning questions and was careful about how the
+    numbers were framed. But being careful on someone's behalf is not the same
+    as asking them, and people have a reasonable interest in how they are
+    counted.</p>
+
+  <p><strong>I would automate the refresh sooner.</strong> A point-in-time
+    snapshot answers a question once. Most of these questions are only
+    interesting as trends, and a report that requires someone to re-run it by
+    hand becomes a report nobody re-runs.</p>
+
+  </main>
+
+  <div class="art-foot">
+    <p style="margin:0">Internal tooling, 2026. Figures and names shown here are
+      synthetic. — <a href="../index.html">Back to milosozegovic.com</a></p>
+  </div>
+</div>
+</body>
+</html>

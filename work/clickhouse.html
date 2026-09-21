@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Taking reports from 30 minutes to 3 seconds — Milos Ozegovic</title>
+<meta name="author" content="Milos Ozegovic">
+<meta name="description" content="Migrating a 1.5-billion-row analytics workload from MySQL to ClickHouse: the proposal, the architecture, the tooling that didn't exist, and how we verified it.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<div class="article">
+  <a class="back" href="../index.html">← Milos Ozegovic</a>
+
+  <header class="art-head">
+    <p class="k">Case study</p>
+    <h1>Taking reports from 30 minutes to 3 seconds</h1>
+    <p class="stand">A 1.5-billion-row clicks table had outgrown MySQL. Some
+      reports took half an hour. Others never finished at all.</p>
+    <div class="art-meta">
+      <div>Where<b>Bay42 / Perform[cb]</b></div>
+      <div>When<b>2020, about six months</b></div>
+      <div>Stack<b>ClickHouse, MySQL, Laravel, AWS</b></div>
+    </div>
+  </header>
+
+  <main id="main">
+
+  <h2>The problem</h2>
+
+  <p>Perform[cb] is a performance-marketing network. Every ad click that passes
+    through the platform is an event, and a service aggregated those events
+    hourly across a set of predefined dimensions — location, browser, site,
+    category — writing the results into MySQL. Reporting read from that table.</p>
+
+  <p>It worked until it didn't. The clicks table reached roughly
+    <strong>1.5 billion rows</strong>, and reporting degraded the way these
+    things always do: gradually, then all at once. By the end, the heaviest
+    client reports took <strong>up to 30 minutes</strong> to generate. Some
+    combinations of filters never returned at all.</p>
+
+  <p>The usual moves had been made. Indexes existed. Queries had been tuned.
+    The instance had been scaled up, and then scaled up again. We were paying
+    for large RDS instances to make a fundamentally unsuitable access pattern
+    slightly less painful.</p>
+
+  <p>That last point is the one that mattered. This was not a slow query
+    problem. It was the wrong kind of database for the job.</p>
+
+  <h2>Why ClickHouse</h2>
+
+  <p>MySQL is row-oriented. It is built to fetch and modify whole records
+    efficiently, which is exactly right for transactional work. Our reporting
+    workload was the opposite shape:</p>
+
+  <ul>
+    <li><strong>Aggregate-heavy</strong> — almost every query was a
+      <code>SUM</code> or <code>COUNT</code> over a date range, grouped by a
+      handful of dimensions.</li>
+    <li><strong>Narrow</strong> — reports touched a few columns out of many,
+      but scanned enormous numbers of rows.</li>
+    <li><strong>Append-only</strong> — the aggregation service inserted. We
+      never updated a historical stats row, and we never deleted one.</li>
+  </ul>
+
+  <p>That is a description of a column store. A column-oriented engine reads
+    only the columns a query asks for, compresses each column far better
+    because the values are homogeneous, and is designed around exactly the
+    bulk-insert, no-update pattern we already had. ClickHouse was built for
+    this workload specifically.</p>
+
+  <p>The absence of updates was the detail that made the decision
+    straightforward. Column stores are poor at mutation, and that is usually
+    the objection to them. Here it cost us nothing.</p>
+
+  <h2>Making the case</h2>
+
+  <p>I did not want to argue this from first principles in a meeting. Proposing
+    a new database is proposing that other people take on risk, and reasoning
+    is easier to dismiss than numbers.</p>
+
+  <p>So I set ClickHouse up locally, loaded it with representative test data,
+    and rebuilt several of the worst-performing reports against it. Then I
+    brought the timings.</p>
+
+  <p class="pull">The difference was not incremental, and it did not need
+    interpreting. That is what got the decision made.</p>
+
+  <p>The team lead approved it and I was asked to define how it would actually
+    work in our infrastructure.</p>
+
+  <h2>Architecture</h2>
+
+  <p>At the time there was no managed ClickHouse offering on AWS — no
+    equivalent of RDS to click through. It had to be provisioned and operated
+    ourselves, which I worked out together with our system administrator: he
+    owned the infrastructure, I owned how the application would use it.</p>
+
+  <p>The decision that shaped everything else was <strong>not replacing MySQL</strong>.
+    MySQL stayed as the system of record for the entire platform, and the
+    aggregation service kept writing stats into it. ClickHouse was added
+    alongside, as a second destination for the same data, and reporting reads
+    were pointed at it.</p>
+
+  <figure class="diagram">
+    <svg viewBox="0 0 640 300" role="img" aria-label="Before, click events flowed through hourly aggregation into MySQL, which served reports slowly. After, the same aggregation writes to both MySQL and ClickHouse, with reports reading from ClickHouse and reconciliation scripts comparing the two.">
+      <defs>
+        <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6"
+                markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10 z" fill="#6A655C"/>
+        </marker>
+        <marker id="arg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6"
+                markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10 z" fill="#1F5E56"/>
+        </marker>
+      </defs>
+      <g font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,sans-serif"
+         font-size="11" fill="#16150F">
+
+        <text x="0" y="12" font-size="10" fill="#6A655C" letter-spacing="1.4">BEFORE</text>
+        <rect x="0" y="26" width="104" height="38" fill="none" stroke="#E2DED4"/>
+        <text x="52" y="49" text-anchor="middle">click events</text>
+        <line x1="104" y1="45" x2="150" y2="45" stroke="#6A655C" marker-end="url(#ar)"/>
+        <rect x="150" y="26" width="120" height="38" fill="none" stroke="#E2DED4"/>
+        <text x="210" y="43" text-anchor="middle">hourly</text>
+        <text x="210" y="56" text-anchor="middle">aggregation</text>
+        <line x1="270" y1="45" x2="316" y2="45" stroke="#6A655C" marker-end="url(#ar)"/>
+        <rect x="316" y="26" width="96" height="38" fill="#F3F1EC" stroke="#E2DED4"/>
+        <text x="364" y="49" text-anchor="middle">MySQL</text>
+        <line x1="412" y1="45" x2="458" y2="45" stroke="#A8502A" marker-end="url(#ar)"/>
+        <rect x="458" y="26" width="110" height="38" fill="none" stroke="#A8502A"/>
+        <text x="513" y="43" text-anchor="middle" fill="#A8502A">reports</text>
+        <text x="513" y="56" text-anchor="middle" fill="#A8502A" font-size="10">up to 30 min</text>
+
+        <line x1="0" y1="100" x2="640" y2="100" stroke="#E2DED4" stroke-dasharray="3 4"/>
+
+        <text x="0" y="132" font-size="10" fill="#6A655C" letter-spacing="1.4">AFTER</text>
+        <rect x="0" y="146" width="104" height="38" fill="none" stroke="#E2DED4"/>
+        <text x="52" y="169" text-anchor="middle">click events</text>
+        <line x1="104" y1="165" x2="150" y2="165" stroke="#6A655C" marker-end="url(#ar)"/>
+        <rect x="150" y="146" width="120" height="38" fill="none" stroke="#E2DED4"/>
+        <text x="210" y="163" text-anchor="middle">hourly</text>
+        <text x="210" y="176" text-anchor="middle">aggregation</text>
+
+        <path d="M270,160 L294,160 L294,128 L316,128" fill="none" stroke="#6A655C" marker-end="url(#ar)"/>
+        <path d="M270,170 L294,170 L294,208 L316,208" fill="none" stroke="#1F5E56" marker-end="url(#arg)"/>
+
+        <rect x="316" y="110" width="96" height="36" fill="#F3F1EC" stroke="#E2DED4"/>
+        <text x="364" y="132" text-anchor="middle">MySQL</text>
+        <text x="364" y="160" text-anchor="middle" font-size="9.5" fill="#6A655C">second source</text>
+        <text x="364" y="172" text-anchor="middle" font-size="9.5" fill="#6A655C">of truth</text>
+
+        <rect x="316" y="190" width="96" height="36" fill="#EDF3F1" stroke="#1F5E56"/>
+        <text x="364" y="212" text-anchor="middle" fill="#1F5E56">ClickHouse</text>
+
+        <line x1="412" y1="208" x2="458" y2="208" stroke="#1F5E56" marker-end="url(#arg)"/>
+        <rect x="458" y="190" width="110" height="36" fill="none" stroke="#1F5E56"/>
+        <text x="513" y="206" text-anchor="middle" fill="#1F5E56">reports</text>
+        <text x="513" y="219" text-anchor="middle" fill="#1F5E56" font-size="10">2–3 sec</text>
+
+        <path d="M364,146 L364,190" stroke="#6A655C" stroke-dasharray="3 3" fill="none"/>
+        <text x="374" y="171" font-size="9.5" fill="#6A655C">reconciled nightly</text>
+
+        <text x="0" y="268" font-size="10" fill="#6A655C">MySQL remains the system of record for the rest of the platform.</text>
+        <text x="0" y="284" font-size="10" fill="#6A655C">Only stats reads moved.</text>
+      </g>
+    </svg>
+    <figcaption>Adding a read path rather than replacing a database. The
+      aggregation service writes to both; MySQL keeps a full copy we can check
+      against.</figcaption>
+  </figure>
+
+  <p>That choice cost some duplicated storage. In exchange, it meant the
+    migration was reversible at every point, and it gave us something to
+    verify against later — which turned out to matter more than the storage
+    cost.</p>
+
+  <h2>Schema</h2>
+
+  <p>The ClickHouse tables could not mirror the MySQL ones. Column stores want
+    different things: a sort key chosen around how the data is actually
+    queried, partitioning that lets whole chunks be skipped, and types picked
+    for compression rather than convenience.</p>
+
+  <p>I designed the target structure around the access pattern we already knew
+    from the reports — date range first, then the dimensions the reports
+    grouped by. The result was a schema shaped like our questions rather than
+    like our writes.</p>
+
+  <h2>Migrating 1.5 billion rows</h2>
+
+  <p>I handled moving the historical data across. Meanwhile the team that owned
+    the aggregation service built the second write path, so new stats landed in
+    both databases going forward.</p>
+
+  <p>Nothing about this half was clever. It was batching, checking, and
+    re-running the parts that fell over — which is most of what a migration
+    actually is.</p>
+
+  <h2>The tooling that didn't exist</h2>
+
+  <p>This is the part I had not fully anticipated when I proposed the change.</p>
+
+  <p>In 2020 there was no usable Laravel integration for ClickHouse. So before
+    any report could move, I had to build:</p>
+
+  <h3>A connector</h3>
+  <p>A client the application could actually use — connection handling, query
+    execution, result mapping — sitting in roughly the place a database driver
+    sits, so the rest of the codebase did not have to learn a new idiom.</p>
+
+  <h3>A query translation layer</h3>
+  <p>The bigger piece. We had a substantial body of existing reporting queries,
+    and rewriting all of them by hand would have made the migration take far
+    longer and introduced a long tail of subtle behavioural differences.</p>
+
+  <p>Instead I built an intermediary that translated most of our existing
+    queries into ClickHouse-compatible form automatically. Where a query could
+    not be translated cleanly — or where a direct translation would have been
+    slow — I rewrote it by hand to take advantage of the engine rather than
+    fight it.</p>
+
+  <p class="pull">Most of the work in a database migration is not the database.
+    It is everything that assumed the old one.</p>
+
+  <h2>Trusting it</h2>
+
+  <p>A reporting system that is fast and subtly wrong is worse than one that is
+    slow and correct. Clients were making spending decisions from these
+    numbers.</p>
+
+  <p>So I wrote reconciliation scripts that compared ClickHouse against MySQL —
+    the same aggregations, run against both, differences surfaced for
+    investigation. We ran them continuously for <strong>months</strong> after
+    the cutover, not just during it.</p>
+
+  <div class="note">
+    <p style="margin:0"><b>This is why MySQL stayed.</b> Keeping the second
+      write path was not redundancy for its own sake. It gave us a reference
+      implementation to check against, for as long as we wanted the
+      reassurance. Verification was a property of the design, not a phase of
+      the project.</p>
+  </div>
+
+  <h2>Results</h2>
+
+  <div class="numbers">
+    <div><div class="n">30 min → 2–3 s</div><div class="l">heaviest reports</div></div>
+    <div><div class="n">1.5B</div><div class="l">rows migrated</div></div>
+    <div><div class="n">~6 months</div><div class="l">proposal to stable</div></div>
+  </div>
+
+  <table class="kv">
+    <tr><td>Report latency</td><td>Reports that took up to 30 minutes returned in 2–3 seconds. Reports that previously could not complete at all now did.</td></tr>
+    <tr><td>Infrastructure cost</td><td>The oversized RDS instances existed to make reporting survivable. Once reporting moved, they were no longer needed.</td></tr>
+    <tr><td>New capability</td><td>Several campaign-performance features were built afterwards that had not been feasible before — not because nobody had thought of them, but because the query cost made them impossible.</td></tr>
+    <tr><td>Scope</td><td>All stats reads moved to ClickHouse. MySQL remained the system of record for everything else.</td></tr>
+  </table>
+
+  <p>That last row is the one I would point at. Speed was the goal, but the
+    more interesting outcome was that a category of feature became possible.
+    When a query costs half an hour, you do not build things that depend on
+    it — and you stop noticing the ideas you are not having.</p>
+
+  <h2>What I would do differently</h2>
+
+  <p><strong>I would have built the translation layer first.</strong> I
+    discovered how much of the work it represented after committing to the
+    approach. The migration was never at risk, but my estimate was, and I would
+    now treat "what assumes the current database?" as part of the proposal
+    rather than something to find out during it.</p>
+
+  <p><strong>I would push harder for a defined end state on the dual writes.</strong>
+    Keeping MySQL as a second source of truth was the right call and I would
+    make it again. But "we will decide later when to stop" is not a decision,
+    and infrastructure kept for reassurance has a way of becoming permanent.</p>
+
+  </main>
+
+  <div class="art-foot">
+    <p style="margin:0">Bay42 was the engineering arm of Perform[cb], where I
+      worked from 2019 to 2021. —
+      <a href="../index.html">Back to milosozegovic.com</a></p>
+  </div>
+</div>
+</body>
+</html>
