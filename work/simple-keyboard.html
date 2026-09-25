@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Simple Keyboard — Milos Ozegovic</title>
+<meta name="author" content="Milos Ozegovic">
+<meta name="description" content="A custom iPhone keyboard built in Swift and SwiftUI, well outside my usual PHP stack, and taken from first commit to App Store review in three days.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<div class="article">
+  <a class="back" href="../index.html">← Milos Ozegovic</a>
+
+  <header class="art-head">
+    <picture>
+      <source srcset="../img/keyboard/app-icon.webp" type="image/webp">
+      <img class="app-icon" src="../img/keyboard/app-icon.png" alt="" width="64" height="64">
+    </picture>
+    <p class="k">Side project · outside my usual stack</p>
+    <h1>An iPhone keyboard, because I needed one</h1>
+    <p class="stand">I build PHP backends for a living. The stock iPhone keyboard
+      kept getting in my way, so I learned enough Swift and iOS to build a
+      replacement and take it through App Store review.</p>
+    <div class="art-meta">
+      <div>Timeline<b>First commit to submission in 3 days</b></div>
+      <div>Stack<b>Swift, SwiftUI, KeyboardKit</b></div>
+      <div>Status<b>In App Store review</b></div>
+    </div>
+  </header>
+
+  <main id="main">
+
+  <h2>The problem</h2>
+
+  <p>The stock iPhone layout didn't suit how I type. Numbers, commas and
+    Serbian letters were each a page switch or a keyboard switch away: no
+    digits row, a comma hidden behind 123, symbols not where I expected them,
+    and š, ć, č, đ and ž on a separate keyboard.</p>
+
+  <p>So I built the one I wanted.</p>
+
+  <figure class="shots">
+    <div>
+      <picture>
+        <source srcset="../img/keyboard/letters.webp" type="image/webp">
+        <img src="../img/keyboard/letters.jpg" alt="Letters page with a row of digits above the letters, and comma and period on either side of the spacebar"
+             width="600" height="503" loading="lazy" decoding="async">
+      </picture>
+      <picture>
+        <source srcset="../img/keyboard/long-press-letters.webp" type="image/webp">
+        <img src="../img/keyboard/long-press-letters.jpg" alt="Long-pressing C shows ć and č ahead of the other accented forms"
+             width="600" height="503" loading="lazy" decoding="async">
+      </picture>
+      <picture>
+        <source srcset="../img/keyboard/symbols.webp" type="image/webp">
+        <img src="../img/keyboard/symbols.jpg" alt="First symbols page with math signs, brackets and punctuation"
+             width="600" height="503" loading="lazy" decoding="async">
+      </picture>
+    </div>
+    <figcaption>Letters with a permanent digits row · long-press for Serbian
+      letters · Android-style symbol pages</figcaption>
+  </figure>
+
+  <h2>What it does</h2>
+
+  <ul>
+    <li>A row of digits above the letters on every page.</li>
+    <li>Comma and period on either side of the spacebar.</li>
+    <li>Two pages of symbols laid out like Android's, switched with 1/2 and 2/2.</li>
+    <li>Long-press S, C, D or Z for š, ć, č, đ and ž, following Shift and Caps
+      Lock, with the standard accents still available after them.</li>
+    <li>Long-press the period for ? ! ' and ".</li>
+  </ul>
+
+  <p>That's all. No autocorrect, no suggestions, no accounts, no network code.
+    It's about 300 lines of Swift.</p>
+
+  <h2>Learning the platform</h2>
+
+  <p>Most of the work was learning how iOS keyboard extensions behave. A few
+    things I ran into:</p>
+
+  <table class="kv">
+    <tr><td>Linking</td><td>KeyboardKit ships as a closed-source binary framework. It is linked into the container app only, and the keyboard extension finds it at runtime in the app's Frameworks folder: one copy, shared by both.</td></tr>
+    <tr><td>The digits row</td><td>The library's built-in number toolbar renders blank on iPhone in its free tier, so the digits row is a real layout row, inserted by hand.</td></tr>
+    <tr><td>The return key</td><td>Its action carries the text field's return type, which changes from field to field. Resizing it means matching the kind of action, not a specific value.</td></tr>
+    <tr><td>Web address fields</td><td>These already have a key that types a period and offers .com on long-press, so the keyboard leaves its own period out there instead of showing two.</td></tr>
+    <tr><td>Haptics</td><td>iOS won't let a keyboard vibrate without Full Access, which also unlocks network access. I made it optional, said in plain words what it's for, and kept the keyboard fully usable without it.</td></tr>
+  </table>
+
+  <p>The Xcode project is generated from a short spec with XcodeGen rather than
+    committed, so the build configuration is readable and reviewable, the same
+    way I'd treat infrastructure config anywhere else.</p>
+
+  <h2>Shipping it</h2>
+
+  <p>Getting it onto the App Store was its own small project: a container app,
+    because iOS only ships keyboards inside one; screenshots at the required
+    device sizes; a preview video; a privacy policy hosted on GitHub Pages; and
+    review notes explaining exactly what Full Access is used for. I tested it
+    on my own iPhone through TestFlight, and answered App Review's follow-up
+    questions with a screen recording.</p>
+
+  <div class="pull">It's here because it isn't PHP. When something needs doing
+    outside my usual stack, I learn what's needed and ship it properly.</div>
+
+  <p>The source is public:
+    <a href="https://github.com/milosozegovic/simple-ios-keyboard">github.com/milosozegovic/simple-ios-keyboard</a>.
+    The app has its own <a href="https://milosozegovic.com/simple-ios-keyboard/">support page</a>, and
+    its <a href="https://milosozegovic.com/simple-ios-keyboard/privacy.html">privacy policy</a> is short,
+    because there is nothing to collect.</p>
+
+  </main>
+
+  <div class="art-foot">
+    <p style="margin:0">Side project, September 2026. —
+      <a href="../index.html">Back to milosozegovic.com</a></p>
+  </div>
+</div>
+</body>
+</html>

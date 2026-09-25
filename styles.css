@@ -89,6 +89,8 @@ section{padding:clamp(3.5rem,8vw,6rem) 0}
 .card h3{font-size:1.2rem;margin-bottom:.55rem}
 .card p{margin:0;font-size:.9375rem;color:#413D35}
 .card .meta{margin-top:1rem;font-size:.8125rem;color:var(--muted)}
+@media(min-width:44rem){.card:last-child:nth-child(odd){grid-column:1/-1}}
+.card p{max-width:var(--measure)}
 
 /* ── experience ───────────────────────────── */
 .roles{border-top:1px solid var(--rule)}
@@ -114,6 +116,10 @@ section{padding:clamp(3.5rem,8vw,6rem) 0}
 .contact{border-top:1px solid var(--rule);padding:clamp(3rem,7vw,5rem) 0}
 .contact h2{font-size:clamp(1.65rem,4vw,2.4rem);max-width:20ch;margin-bottom:1.25rem}
 .terms{font-size:.9688rem;color:var(--body);max-width:var(--measure);margin:0}
+.consult{margin-top:1.75rem;max-width:var(--measure)}
+.consult ul{margin:.75rem 0 1rem;padding-left:1.1rem;font-size:.9688rem}
+.consult li{margin-bottom:.5rem}
+.consult li b{color:var(--ink);font-weight:600}
 .links{display:flex;gap:2rem;flex-wrap:wrap;margin:2.25rem 0 0;font-size:1.0625rem}
 .links a{color:var(--accent);text-underline-offset:.22em}
 
@@ -151,6 +157,16 @@ footer{padding:2rem 0 3rem;font-size:.8125rem;color:var(--muted);
 .note{background:var(--accent-soft);border-radius:4px;padding:1.1rem 1.25rem;
   margin:1.75rem 0;font-size:.9375rem}
 .note b{color:var(--ink)}
+
+.art-head .app-icon{display:block;width:64px;height:64px;border-radius:14px;
+  margin:0 0 1.25rem}
+.shots{margin:2.25rem 0}
+.shots>div{display:grid;gap:.75rem}
+@media(min-width:36rem){.shots>div{grid-template-columns:repeat(3,1fr)}}
+.shots picture{display:block}
+.shots img{display:block;width:100%;height:auto;border-radius:6px;background:#E8E3D8}
+.shots figcaption{font-size:.8125rem;color:var(--muted);margin-top:1rem;
+  text-align:center;line-height:1.5}
 
 .diagram{margin:2.25rem 0;border:1px solid var(--rule);border-radius:3px;
   background:#fff;padding:1.5rem 1.25rem}

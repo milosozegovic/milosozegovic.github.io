@@ -23,8 +23,9 @@ Total page weight is around 120 KB including images.
 index.html                          home
 work/clickhouse.html                case study — 1.5B-row MySQL → ClickHouse migration
 work/engineering-analytics.html     case study — delivery analytics over Jira + GitHub
+work/simple-keyboard.html           side project — iOS keyboard in Swift/SwiftUI
 styles.css                          one stylesheet
-img/                                portrait and avatars (WebP with JPEG fallback)
+img/                                portrait, avatars, keyboard screenshots (WebP with JPEG fallback)
 404.html                            not-found page
 CNAME                               custom domain for GitHub Pages
 .nojekyll                           skip Jekyll processing
