@@ -24,7 +24,7 @@ index.html                          home
 work/clickhouse.html                case study — 1.5B-row MySQL → ClickHouse migration
 work/engineering-analytics.html     case study — delivery analytics over Jira + GitHub
 work/simple-keyboard.html           side project — iOS keyboard in Swift/SwiftUI
-recommendations/srdjan-mis*.html    recommendation I wrote — full letter and short version, each with a PDF
+recommendations/                    recommendations I've written — a full letter and a short version per person, each with a PDF
 styles.css                          one stylesheet
 img/                                portrait, avatars, keyboard screenshots (WebP with JPEG fallback)
 404.html                            not-found page
@@ -47,7 +47,7 @@ python3 -m http.server 8000
 ```
 
 The recommendation PDFs are printed from their pages, so after editing a
-letter, regenerate its PDF:
+letter, regenerate its PDF, for example:
 
 ```sh
 "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless \
