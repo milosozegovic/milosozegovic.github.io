@@ -24,6 +24,7 @@ index.html                          home
 work/clickhouse.html                case study — 1.5B-row MySQL → ClickHouse migration
 work/engineering-analytics.html     case study — delivery analytics over Jira + GitHub
 work/simple-keyboard.html           side project — iOS keyboard in Swift/SwiftUI
+recommendations/srdjan-mis*.html    recommendation I wrote — full letter and short version, each with a PDF
 styles.css                          one stylesheet
 img/                                portrait, avatars, keyboard screenshots (WebP with JPEG fallback)
 404.html                            not-found page
@@ -43,6 +44,15 @@ Or serve it, if you'd rather test with absolute paths:
 
 ```sh
 python3 -m http.server 8000
+```
+
+The recommendation PDFs are printed from their pages, so after editing a
+letter, regenerate its PDF:
+
+```sh
+"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless \
+  --no-pdf-header-footer --print-to-pdf=recommendations/Srdjan-Mis-Recommendation-Letter.pdf \
+  recommendations/srdjan-mis.html
 ```
 
 ## Deployment
